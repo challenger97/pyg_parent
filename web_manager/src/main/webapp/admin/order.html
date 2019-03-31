@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>订单查询</title>
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <link rel="stylesheet" href="../plugins/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../plugins/adminLTE/css/AdminLTE.css">
+    <link rel="stylesheet" href="../plugins/adminLTE/css/skins/_all-skins.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../plugins/jQuery/jquery-2.2.3.min.js"></script>
+    <script src="../plugins/bootstrap/js/bootstrap.min.js"></script>
+
+    <!-- 引入angular的js -->
+    <script type="text/javascript" src="../plugins/angularjs/angular.min.js"></script>
+    <!-- 引入分页相关的JS和CSS -->
+    <script type="text/javascript" src="../plugins/angularjs/pagination.js"></script>
+    <link rel="stylesheet" href="../plugins/angularjs/pagination.css">
+
+    <script type="text/javascript" src="../js/base_pagination.js"></script>
+    <script type="text/javascript" src="../js/controller/baseController.js"></script>
+    <script type="text/javascript" src="../js/service/orderService.js"></script>
+    <script type="text/javascript" src="../js/controller/orderManagerController.js"></script>
+    <script type="text/javascript">
+        function createExcel() {
+            window.location.href="/orderManager/createExcel.do";
+        }
+    </script>
+</head>
+
+<body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou" ng-controller="orderManagerController">
+<!-- .box-body -->
+<div class="box-header with-border">
+    <h3 class="box-title">订单管理</h3>
+</div>
+<div class="box-body">
+    <!-- 数据表格 -->
+    <div class="table-box">
+
+        <!--工具栏-->
+        <div class="pull-left">
+            <div class="form-group form-inline">
+                <div class="btn-group">
+                    <!--<button type="button" class="btn btn-default" title="新建" ng-click="entity={specificationOptionList:[]}" data-toggle="modal" data-target="#editModal" ><i class="fa fa-file-o"></i> 新建</button>-->
+                    <!--<button type="button" class="btn btn-default" title="删除" ng-click="dele()" ><i class="fa fa-trash-o"></i> 删除</button>-->
+                    <button class="btn btn-default" onclick="createExcel()">导出为Excel</button>
+                    <button type="button" class="btn btn-default" title="刷新" onclick="window.location.reload();"><i class="fa fa-refresh"></i> 刷新</button>
+                </div>
+            </div>
+        </div>
+        <div class="box-tools pull-right">
+            <div class="has-feedback">
+                订单编号：<input  type="text" ng-model="searchEntity.order_id">
+                <button class="btn btn-default" ng-click="reloadList()">查询</button>
+            </div>
+        </div>
+        <!--工具栏/-->
+        <!--数据列表-->
+        <table id="dataList" class="table table-bordered table-striped table-hover dataTable">
+            <thead>
+            <tr>
+                <!--<th class="" style="padding-right:0px">-->
+                    <!--<input id="selall" type="checkbox" class="icheckbox_square-blue">-->
+                <!--</th>-->
+                <th class="sorting_asc">订单编号</th>
+                <th class="sorting">创建时间</th>
+                <th class="sorting">买家id</th>
+                <th class="sorting">商家id</th>
+                <th class="text-center">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="entity in list">
+                <!--<td><input  type="checkbox" ng-click="updateSelection($event,entity.order_id)"></td>-->
+                <td>{{entity.orderId}}</td>
+                <td>{{entity.createTime}}</td>
+                <td>{{entity.userId}}</td>
+                <td>{{entity.sellerId}}</td>
+                <td class="text-center">
+                    <button type="button" class="btn bg-olive btn-xs" ng-click="findById(entity.orderId)" data-toggle="modal" data-target="#sellerModal"  >详情</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <!--数据列表/-->
+    </div>
+    <!-- 数据表格 /-->
+    <!-- 分页 -->
+    <tm-pagination conf="paginationConf"></tm-pagination>
+</div>
+<!-- /.box-body -->
+
+
+<!-- 商家详情 -->
+<div class="modal fade" id="sellerModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" >
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3 id="myModalLabel">商家详情</h3>
+            </div>
+            <div class="modal-body">
+
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#home" data-toggle="tab">基本信息</a></li>
+                    <li><a href="#buyer" data-toggle="tab">买家信息</a></li>
+                    <li><a href="#seller" data-toggle="tab">商家信息</a></li>
+                    <li><a href="#logistics" data-toggle="tab">物流信息</a></li>
+                    <li><a href="#goods" data-toggle="tab">商品信息</a></li>
+                </ul>
+
+                <!-- 选项卡开始 -->
+                <div id="myTabContent" class="tab-content">
+                    <div class="tab-pane active in" id="home">
+                        <br>
+                        <table class="table table-bordered table-striped"  width="800px">
+                            <tr>
+                                <td>订单ID</td>
+                                <td>{{entity.orderId}}</td>
+                            </tr>
+                            <tr>
+                                <td>付款金额</td>
+                                <td>{{entity.payment}}</td>
+                            </tr>
+                            <tr>
+                                <td>付款方式</td>
+                                <td>{{entity.paymentType}}</td>
+                            </tr>
+                            <tr>
+                                <td>订单状态</td>
+                                <td>{{entity.status}}</td>
+                            </tr>
+                            <tr>
+                                <td>创建时间</td>
+                                <td>{{entity.createTime}}</td>
+                            </tr>
+                            <tr>
+                                <td>支付时间</td>
+                                <td>{{entity.paymentTime}}</td>
+                            </tr>
+                            <tr>
+                                <td>发货时间</td>
+                                <td>{{entity.consignTime}}</td>
+                            </tr>
+                            <tr>
+                                <td>交易完成时间</td>
+                                <td>{{entity.endTime}}</td>
+                            </tr>
+                            <tr>
+                                <td>交易关闭时间</td>
+                                <td>{{entity.closeTime}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="buyer">
+                        <br>
+                        <table class="table table-bordered table-striped" >
+                            <tr>
+                                <td>买家ID</td>
+                                <td>{{entity.userId}}</td>
+                            </tr>
+                            <tr>
+                                <td>买家昵称</td>
+                                <td>{{entity.buyerNick}}</td>
+                            </tr>
+                            <tr>
+                                <td>买家留言</td>
+                                <td>{{entity.buyerMessage}}</td>
+                            </tr>
+                            <tr>
+                                <td>买家是否已经评价</td>
+                                <td>{{entity.buyerRate}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="seller">
+                        <br>
+                        <table class="table table-bordered table-striped" >
+                            <tr>
+                                <td>卖家ID</td>
+                                <td>{{entity.sellerId}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="logistics">
+                        <br>
+                        <table class="table table-bordered table-striped" >
+                            <tr>
+                                <td>物流名称</td>
+                                <td>{{entity.shippingName}}</td>
+                            </tr>
+                            <tr>
+                                <td>物流单号</td>
+                                <td>{{entity.shippingCode}}</td>
+                            </tr>
+                            <tr>
+                                <td>收货人地区名称(省，市，县)街道</td>
+                                <td>{{entity.receiverAreaName}}</td>
+                            </tr>
+                            <tr>
+                                <td>收货人手机</td>
+                                <td>{{entity.receiverMobile}}</td>
+                            </tr>
+                            <tr>
+                                <td>收货人邮编</td>
+                                <td>{{entity.receiverZipCode}}</td>
+                            </tr>
+                            <tr>
+                                <td>收货人</td>
+                                <td>{{entity.receiver}}</td>
+                            </tr>
+                            <tr>
+                                <td>收货人邮编</td>
+                                <td>{{entity.receiverZipCode}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="goods">
+                        <br>
+                        <table class="table table-bordered table-striped" >
+                            <tr>
+                                <td>订单ID</td>
+                                <td>待查询</td>
+                            </tr>
+
+                        </table>
+                    </div>
+
+                </div>
+                <!-- 选项卡结束 -->
+
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+
+</html>

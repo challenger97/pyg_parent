@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>ECharts</title>
+    <script src="../plugins/jQuery/jquery-2.2.3.min.js"></script>
+    <script src="../plugins/bootstrap/js/bootstrap.min.js"></script>
+    <!-- 引入 echarts.js -->
+    <script src="../plugins/echarts/echarts.js"></script>
+</head>
+<body>
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+<div id="main" style="width: 800px;height:550px;"></div>
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('main'));
+
+    // 指定图表的配置项和数据
+    myChart.setOption({
+        title: {
+            text: '销量折线图'
+        },
+        tooltip : {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'cross',
+                label: {
+                    backgroundColor: '#6a7985'
+                }
+            }
+        },
+
+        toolbox: {
+            feature: {
+                saveAsImage: {}
+            }
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis : [
+            {
+                type : 'category',
+                boundaryGap : false,
+                data : []
+            }
+        ],
+        yAxis : [
+            {
+                type : 'value'
+            }
+        ],
+        series : [
+            {
+                name:'销售额',
+                type:'line',
+                stack: '总量',
+                areaStyle: {},
+                data:[]
+            }
+        ]
+    });
+
+    // 异步加载数据
+    $.ajax({
+        url:"../orderManager/findTotalMoney.do",
+        // async:false,
+        // cache:false,
+        success:function (data) {
+            // 填入数据
+            myChart.setOption({
+                xAxis: [{
+                    data: data.dateList
+                }],
+                series: [{
+                    // 根据名字对应到相应的系列
+                    name: '销售额',
+                    data: data.moneyList
+                }]
+            });
+        },
+    });
+</script>
+</body>
+</html>
